@@ -49,13 +49,15 @@ func readStopWords() []string {
 type FileProcessingMemory struct {
 	stopWords            []string // All stop words.
 	currentLine          string   // A single line of the input file.
-	inputBytesReadCount int
+	inputBytesReadCount  int
 	wordStartCharIndex   int      // The start index of the next word in the current line.
 	foundExistingWord    bool     // Flag indicating if word found already exists in word_freq file.
 	currentWord          string   // The last word found.
 	wordFrequencyPair    string   // Is "currentWord, count(currentWord)".
 	currentWordFrequency int      // Frequency of last word found.
-	wordFreqLineLength int
+	wordFreqLineLength   int
+
+	top25Words           []string
 }
 
 
@@ -126,7 +128,7 @@ func doPartOne() {
 						for {
 							wordFreqsLine, wordFreqsBytesRead := util.ReadLineFromFile(wordFreqsFile)
 
-							pos,_ := wordFreqsFile.Seek(0, 1)
+							pos, _ := wordFreqsFile.Seek(0, 1)
 							log.Printf("Position in word_freq file is: %d", pos)
 
 							if (wordFreqsBytesRead == 0) {
@@ -136,7 +138,6 @@ func doPartOne() {
 
 							primaryMemory.wordFrequencyPair = strings.TrimSpace(string(wordFreqsLine))
 							primaryMemory.wordFreqLineLength = len(primaryMemory.wordFrequencyPair)
-
 
 							count, err := strconv.Atoi(strings.TrimSpace(strings.Split(primaryMemory.wordFrequencyPair, ",")[1]))
 
@@ -161,11 +162,7 @@ func doPartOne() {
 							wordFreqsFile.WriteString(fmt.Sprintf("%20s,%04d\n", primaryMemory.currentWord, 1))
 						} else {
 							// Word found already exists, update count.
-							posOld,_ := wordFreqsFile.Seek(0, 1)
-							log.Printf("Position in file before seek is: %d", posOld)
-							posNew,_ := wordFreqsFile.Seek(-26, 1)
-							log.Printf("Position in file after seek is: %d", posNew)
-
+							wordFreqsFile.Seek(-26, 1)
 							wordFreqsFile.WriteString(fmt.Sprintf("%20s,%04d\n", primaryMemory.wordFrequencyPair, primaryMemory.currentWordFrequency))
 						}
 						wordFreqsFile.Seek(0, 0)
@@ -177,11 +174,76 @@ func doPartOne() {
 			}
 		}
 
-
 	}
 
 	// Input file is no longer needed, close it properly.
 	inputFile.Close()
+}
+
+/*
+
+   PART 2: We throw away everything contained in our primary memory (no longer needed). Then our goal is to
+   find the 25 most frequent words in the "word_freqs.txt" file.
+
+ */
+func doPartTwo() {
+	// Clear primary memory be creating new struct
+	primaryMemory = FileProcessingMemory{}
+
+	// Prepare memory for top 25 words
+	//primaryMemory.top25Words = [25]string{}
+	primaryMemory.top25Words = make([]string, 26, 26)
+
+	for {
+		line, byteCount := util.ReadLineFromFile(wordFreqsFile)
+
+		if (byteCount == 0) {
+			break
+		}
+
+		primaryMemory.wordFrequencyPair = strings.TrimSpace(line)
+		primaryMemory.currentWord = strings.Split(primaryMemory.wordFrequencyPair, ",")[0]
+
+		currentWordFrequency, _ := strconv.Atoi(strings.Split(primaryMemory.wordFrequencyPair, ",")[1])
+		primaryMemory.currentWordFrequency = currentWordFrequency
+
+		for i := 0; i < 25; i++ {
+
+			var currentListWordCount int
+
+			if(primaryMemory.top25Words[i] != "") {
+				currentListWordCount, _ = strconv.Atoi(strings.Split(primaryMemory.top25Words[i], ",")[1])
+			}
+
+
+			if (primaryMemory.top25Words[i] == "" || currentListWordCount < primaryMemory.currentWordFrequency) {
+				primaryMemory.top25Words = append(primaryMemory.top25Words[:i],
+					append([]string{primaryMemory.wordFrequencyPair},
+						primaryMemory.top25Words[i:]...)...)
+				cropTop25Array()
+				break
+			}
+		}
+
+	}
+
+	log.Println()
+	log.Println("Start printing top 25 words ...")
+	for _, tfEntry := range primaryMemory.top25Words {
+		if (tfEntry != "") {
+			log.Print(tfEntry)
+		}
+	}
+
+}
+
+func cropTop25Array() {
+	arr := make([]string, 25, 25)
+
+	for i := 0; i < 25; i++ {
+		arr[i] = primaryMemory.top25Words[i]
+	}
+	primaryMemory.top25Words = arr
 }
 
 func isAlphanumeric(c rune) bool {
@@ -200,5 +262,6 @@ func contains(array []string, a string) bool {
 func main() {
 	log.Print("Start term frequency program ...\n")
 	doPartOne()
+	doPartTwo()
 	log.Print("Finished!")
 }
