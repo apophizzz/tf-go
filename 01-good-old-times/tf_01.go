@@ -116,12 +116,14 @@ func doPartOne() {
 					// End of a word has been found.
 					primaryMemory.foundExistingWord = false
 
-					primaryMemory.currentWord = strings.ToLower(primaryMemory.currentLine[primaryMemory.wordStartCharIndex:index])
+					primaryMemory.currentWord = strings.ToLower(
+						primaryMemory.currentLine[primaryMemory.wordStartCharIndex:index])
 					log.Printf("Found input word: '%s'", primaryMemory.currentWord)
 
 
 					// Check if we have a valid word ..
-					if (len(primaryMemory.currentWord) > 2 && !contains(primaryMemory.stopWords, primaryMemory.currentWord)) {
+					if (len(primaryMemory.currentWord) > 2 && !contains(
+						primaryMemory.stopWords, primaryMemory.currentWord)) {
 						log.Printf("Check if '%s' is in stop words ...", primaryMemory.currentWord)
 
 						// Check if word already exists in word_freq file.
@@ -139,14 +141,16 @@ func doPartOne() {
 							primaryMemory.wordFrequencyPair = strings.TrimSpace(string(wordFreqsLine))
 							primaryMemory.wordFreqLineLength = len(primaryMemory.wordFrequencyPair)
 
-							count, err := strconv.Atoi(strings.TrimSpace(strings.Split(primaryMemory.wordFrequencyPair, ",")[1]))
+							count, err := strconv.Atoi(strings.TrimSpace(
+								strings.Split(primaryMemory.wordFrequencyPair, ",")[1]))
 
 							if (err != nil) {
 								panic(err)
 							}
 
 							primaryMemory.currentWordFrequency = count // Store count of word from target file.
-							primaryMemory.wordFrequencyPair = strings.Split(primaryMemory.wordFrequencyPair, ",")[0] // Store current word from target file.
+							primaryMemory.wordFrequencyPair = strings.Split(
+								primaryMemory.wordFrequencyPair, ",")[0] // Store current word from target file.
 
 							// Check if current word from word_freq file equals last word found.
 							if (primaryMemory.wordFrequencyPair == primaryMemory.currentWord) {
@@ -163,7 +167,8 @@ func doPartOne() {
 						} else {
 							// Word found already exists, update count.
 							wordFreqsFile.Seek(-26, 1)
-							wordFreqsFile.WriteString(fmt.Sprintf("%20s,%04d\n", primaryMemory.wordFrequencyPair, primaryMemory.currentWordFrequency))
+							wordFreqsFile.WriteString(fmt.Sprintf(
+								"%20s,%04d\n", primaryMemory.wordFrequencyPair, primaryMemory.currentWordFrequency))
 						}
 						wordFreqsFile.Seek(0, 0)
 					}
