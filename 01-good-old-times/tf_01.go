@@ -216,10 +216,9 @@ func doPartTwo() {
 
 			var currentListWordCount int
 
-			if(primaryMemory.top25Words[i] != "") {
+			if (primaryMemory.top25Words[i] != "") {
 				currentListWordCount, _ = strconv.Atoi(strings.Split(primaryMemory.top25Words[i], ",")[1])
 			}
-
 
 			if (primaryMemory.top25Words[i] == "" || currentListWordCount < primaryMemory.currentWordFrequency) {
 				primaryMemory.top25Words = append(primaryMemory.top25Words[:i],

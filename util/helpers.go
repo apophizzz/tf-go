@@ -11,7 +11,7 @@ func ReadLineFromFile(file *os.File) (string, int) {
 		buffer := make([]byte, 1)
 		numBytesRead, _ := file.Read(buffer)
 
-		if(numBytesRead == 0) {
+		if (numBytesRead == 0) {
 			break
 		}
 
