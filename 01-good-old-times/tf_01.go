@@ -65,6 +65,9 @@ var inputFile *os.File = open("input.txt")
 // Open secondary memory
 var wordFreqsFile *os.File = touchopen("word_freqs.txt")
 
+// Prepare primary memory for further processing
+var primaryMemory FileProcessingMemory = FileProcessingMemory{}
+
 
 /*
 
@@ -75,51 +78,49 @@ var wordFreqsFile *os.File = touchopen("word_freqs.txt")
  */
 func doPartOne() {
 
-	memory := FileProcessingMemory{}
-
 	// Read and store stop words
-	memory.stopWords = readStopWords()
+	primaryMemory.stopWords = readStopWords()
 
 	// Read a single line from the input file. Continue until there're no more lines to be read.
 	for {
 
-		memory.currentLine, memory.inputBytesReadCount = util.ReadLineFromFile(inputFile)
+		primaryMemory.currentLine, primaryMemory.inputBytesReadCount = util.ReadLineFromFile(inputFile)
 
-		if memory.inputBytesReadCount == 0 {
+		if primaryMemory.inputBytesReadCount == 0 {
 			break
 		}
 
-		if (!strings.HasSuffix(memory.currentLine, "\n")) {
-			memory.currentLine += "\n"
+		if (!strings.HasSuffix(primaryMemory.currentLine, "\n")) {
+			primaryMemory.currentLine += "\n"
 		}
 
-		log.Printf("Current line is: '%s'", memory.currentLine)
+		log.Printf("Current line is: '%s'", primaryMemory.currentLine)
 
-		memory.foundExistingWord = false // Start with 'wordFound' set to false.
-		memory.wordStartCharIndex = -1 // Set 'wordStartIndex' to -1
+		primaryMemory.foundExistingWord = false // Start with 'wordFound' set to false.
+		primaryMemory.wordStartCharIndex = -1 // Set 'wordStartIndex' to -1
 
 
 		// Loop over the current line's characters
-		for index, char := range memory.currentLine {
+		for index, char := range primaryMemory.currentLine {
 
-			if (memory.wordStartCharIndex == -1) {
+			if (primaryMemory.wordStartCharIndex == -1) {
 				if (isAlphanumeric(char)) {
 					// Start of new word has been found.
-					memory.wordStartCharIndex = index
+					primaryMemory.wordStartCharIndex = index
 				}
 
 			} else {
 				if (!isAlphanumeric(char)) {
 					// End of a word has been found.
-					memory.foundExistingWord = false
+					primaryMemory.foundExistingWord = false
 
-					memory.currentWord = strings.ToLower(memory.currentLine[memory.wordStartCharIndex:index])
-					log.Printf("Found input word: '%s'", memory.currentWord)
+					primaryMemory.currentWord = strings.ToLower(primaryMemory.currentLine[primaryMemory.wordStartCharIndex:index])
+					log.Printf("Found input word: '%s'", primaryMemory.currentWord)
 
 
 					// Check if we have a valid word ..
-					if (len(memory.currentWord) > 2 && !contains(memory.stopWords, memory.currentWord)) {
-						log.Printf("Check if '%s' is in stop words ...", memory.currentWord)
+					if (len(primaryMemory.currentWord) > 2 && !contains(primaryMemory.stopWords, primaryMemory.currentWord)) {
+						log.Printf("Check if '%s' is in stop words ...", primaryMemory.currentWord)
 
 						// Check if word already exists in word_freq file.
 						for {
@@ -133,31 +134,31 @@ func doPartOne() {
 								break
 							}
 
-							memory.wordFrequencyPair = strings.TrimSpace(string(wordFreqsLine))
-							memory.wordFreqLineLength = len(memory.wordFrequencyPair)
+							primaryMemory.wordFrequencyPair = strings.TrimSpace(string(wordFreqsLine))
+							primaryMemory.wordFreqLineLength = len(primaryMemory.wordFrequencyPair)
 
 
-							count, err := strconv.Atoi(strings.TrimSpace(strings.Split(memory.wordFrequencyPair, ",")[1]))
+							count, err := strconv.Atoi(strings.TrimSpace(strings.Split(primaryMemory.wordFrequencyPair, ",")[1]))
 
 							if (err != nil) {
 								panic(err)
 							}
 
-							memory.currentWordFrequency = count // Store count of word from target file.
-							memory.wordFrequencyPair = strings.Split(memory.wordFrequencyPair, ",")[0] // Store current word from target file.
+							primaryMemory.currentWordFrequency = count // Store count of word from target file.
+							primaryMemory.wordFrequencyPair = strings.Split(primaryMemory.wordFrequencyPair, ",")[0] // Store current word from target file.
 
 							// Check if current word from word_freq file equals last word found.
-							if (memory.wordFrequencyPair == memory.currentWord) {
-								log.Printf("Word '%s' already exists in target file!", memory.currentWord)
-								memory.currentWordFrequency += 1 // Increment count by one.
-								memory.foundExistingWord = true // We found an existing word.
+							if (primaryMemory.wordFrequencyPair == primaryMemory.currentWord) {
+								log.Printf("Word '%s' already exists in target file!", primaryMemory.currentWord)
+								primaryMemory.currentWordFrequency += 1 // Increment count by one.
+								primaryMemory.foundExistingWord = true // We found an existing word.
 								break
 							}
 						}
 
-						if (!memory.foundExistingWord) {
+						if (!primaryMemory.foundExistingWord) {
 							// Word found does not exist in file yet, append new entry.
-							wordFreqsFile.WriteString(fmt.Sprintf("%20s,%04d\n", memory.currentWord, 1))
+							wordFreqsFile.WriteString(fmt.Sprintf("%20s,%04d\n", primaryMemory.currentWord, 1))
 						} else {
 							// Word found already exists, update count.
 							posOld,_ := wordFreqsFile.Seek(0, 1)
@@ -165,13 +166,13 @@ func doPartOne() {
 							posNew,_ := wordFreqsFile.Seek(-26, 1)
 							log.Printf("Position in file after seek is: %d", posNew)
 
-							wordFreqsFile.WriteString(fmt.Sprintf("%20s,%04d\n", memory.wordFrequencyPair, memory.currentWordFrequency))
+							wordFreqsFile.WriteString(fmt.Sprintf("%20s,%04d\n", primaryMemory.wordFrequencyPair, primaryMemory.currentWordFrequency))
 						}
 						wordFreqsFile.Seek(0, 0)
 					}
 
 					// Reset first character index of next word found
-					memory.wordStartCharIndex = -1
+					primaryMemory.wordStartCharIndex = -1
 				}
 			}
 		}
