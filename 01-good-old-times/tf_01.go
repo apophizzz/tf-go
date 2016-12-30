@@ -122,7 +122,7 @@ func doPartOne() {
 
 
 					// Check if we have a valid word ..
-					if (len(primaryMemory.currentWord) > 2 && !contains(
+					if (len(primaryMemory.currentWord) > 2 && !util.Contains(
 						primaryMemory.stopWords, primaryMemory.currentWord)) {
 						log.Printf("Check if '%s' is in stop words ...", primaryMemory.currentWord)
 
@@ -253,14 +253,6 @@ func isAlphanumeric(c rune) bool {
 	return unicode.IsLetter(c) || unicode.IsDigit(c)
 }
 
-func contains(array []string, a string) bool {
-	for _, s := range array {
-		if (s == a) {
-			return true
-		}
-	}
-	return false
-}
 
 func main() {
 	log.Print("Start term frequency program ...\n")

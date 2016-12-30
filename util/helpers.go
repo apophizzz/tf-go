@@ -22,3 +22,12 @@ func ReadLineFromFile(file *os.File) (string, int) {
 
 	return line, totalBytesRead
 }
+
+func Contains(array []string, a string) bool {
+	for _, s := range array {
+		if (s == a) {
+			return true
+		}
+	}
+	return false
+}
