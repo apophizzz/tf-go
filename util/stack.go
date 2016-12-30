@@ -8,19 +8,19 @@ type StackElement struct {
 
 
 type Stack struct {
-	elements []StackElement
+	Elements []StackElement
 }
 
 func Push(s *Stack, elem StackElement) {
-	s.elements = append(s.elements, elem)
+	s.Elements = append(s.Elements, elem)
 }
 
 func Pop(s *Stack) (StackElement, error) {
 	var poppedElem StackElement
-	if(len(s.elements) > 0) {
-			stackLength := len(s.elements)
-			poppedElem = s.elements[stackLength-1]
-			s.elements = s.elements[:stackLength-1]
+	if(len(s.Elements) > 0) {
+			stackLength := len(s.Elements)
+			poppedElem = s.Elements[stackLength-1]
+			s.Elements = s.Elements[:stackLength-1]
 			return poppedElem, nil
 	}
 
