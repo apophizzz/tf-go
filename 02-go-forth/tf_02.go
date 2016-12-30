@@ -18,7 +18,7 @@ var heap map[string]interface{} = make(map[string]interface{})
 /*
 	STEP 1:
 	Read the entire input file and store the whole content as a single string.
-    This string is then pushed onto the stack.
+	This string is then pushed onto the stack.
  */
 func readInputFile() {
 	heap["buffer"], heap["err"] = ioutil.ReadFile("input.txt")
