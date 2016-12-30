@@ -58,6 +58,11 @@ func filterInvalidChars() {
 	delete(heap, "input")
 }
 
+/*
+	STEP 3:
+	Grab the clean input string from the stack, split it into single words and push these words
+	to the stack.
+ */
 func scan() {
 	heap["input"], heap["err"] = util.Pop(&stack)
 	heap["input"] = heap["input"].(util.StackElement).Val
