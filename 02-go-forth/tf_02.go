@@ -77,10 +77,75 @@ func scan() {
 	delete(heap, "err")
 }
 
+
+/*
+	STEP 4:
+	Read stop words file, extend it expand it by the lowercase ASCII letters and store the resulting array on the
+	heap. Then, pop the input from the stack word by word and store it in case it's not a stop word. Otherwise,
+	it simply gets discarded. At the end, the array of valid words is pushed onto the stack for further processing.
+ */
+func removeStopWords() {
+	heap["buffer"], heap["err"] = ioutil.ReadFile("stop_words.txt")
+
+	if (heap["err"] != nil) {
+		panic(heap["err"])
+	}
+
+	createLowercaseAlphabet()
+	heap["callResult"], _ = util.Pop(&stack)
+
+	heap["stopWords"] = append(strings.Split(string(heap["buffer"].([]byte)), ","),
+		heap["callResult"].(util.StackElement).Val.([]string)...)
+
+	heap["words"] = make([]string, 0)
+
+	for util.HasMoreElements(&stack) {
+
+		heap["stackElement"], heap["err"] = util.Pop(&stack)
+
+		if (heap["err"] != nil) {
+			panic(heap["err"])
+		}
+
+		if !util.Contains(heap["stopWords"].([]string),
+			heap["stackElement"].(util.StackElement).Val.(string)) {
+			heap["words"] = append(heap["words"].([]string),
+				heap["stackElement"].(util.StackElement).Val.(string))
+		}
+	}
+
+	util.Push(&stack, util.StackElement{Val: heap["words"].([]string)})
+
+	// Clear heap.
+	delete(heap, "err")
+	delete(heap, "buffer")
+	delete(heap, "result")
+	delete(heap, "stackElement")
+	delete(heap, "words")
+	delete(heap, "stopWords")
+	delete(heap, "callResult")
+}
+
+func createLowercaseAlphabet() {
+	heap["result"] = make([]string, 0)
+	heap["byteSlice"] = make([]byte, 26)
+
+	for i := range heap["byteSlice"].([]byte) {
+		heap["byteSlice"].([]byte)[i] = 'a' + byte(i)
+		heap["result"] = append(heap["result"].([]string), string(heap["byteSlice"].([]byte)[i]))
+	}
+
+	util.Push(&stack, util.StackElement{Val:heap["result"].([]string)})
+
+	delete(heap, "result")
+	delete(heap, "byteSlice")
+}
+
 func main() {
 	readInputFile()
 	filterInvalidChars()
 	scan()
+	removeStopWords()
 
 	log.Print(stack.Elements)
 	log.Print(heap)
