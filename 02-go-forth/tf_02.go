@@ -5,6 +5,7 @@ import (
 	"log"
 	"io/ioutil"
 	"regexp"
+	"strings"
 )
 
 // Prepare stack.
@@ -46,7 +47,7 @@ func filterInvalidChars() {
 	}
 
 	heap["input"], heap["err"] = util.Pop(&stack)
-	heap["input"] = heap["input"].(util.StackElement).Val.(string)
+	heap["input"] = heap["input"].(util.StackElement).Val
 
 	util.Push(&stack, util.StackElement{Val:heap["regexp"].(*regexp.Regexp).
 		ReplaceAllLiteralString(heap["input"].(string), " ")})
@@ -57,9 +58,25 @@ func filterInvalidChars() {
 	delete(heap, "input")
 }
 
+func scan() {
+	heap["input"], heap["err"] = util.Pop(&stack)
+	heap["input"] = heap["input"].(util.StackElement).Val
+	heap["input"] = strings.Split(heap["input"].(string), " ")
+
+	for _, word := range heap["input"].([]string) {
+		util.Push(&stack, util.StackElement{Val:word})
+	}
+
+	// Clear heap.
+	delete(heap, "input")
+	delete(heap, "err")
+}
+
 func main() {
 	readInputFile()
 	filterInvalidChars()
+	scan()
+
 	log.Print(stack.Elements)
 	log.Print(heap)
 }
