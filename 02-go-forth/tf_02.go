@@ -15,6 +15,7 @@ var heap map[string]interface{} = make(map[string]interface{})
 
 
 /*
+	STEP 1:
 	Read the entire input file and store the whole content as a single string.
     This string is then pushed onto the stack.
  */
@@ -32,7 +33,8 @@ func readInputFile() {
 	delete(heap, "err")
 }
 
-/**
+/*
+	STEP 2:
 	Create regex pattern on heap (due to multi-value return), apply it to the input (which has been pushed
 	onto the stack by "readInputFile"), and push the cleaned string back to the stack.
  */
