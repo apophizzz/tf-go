@@ -27,6 +27,10 @@ func Pop(s *Stack) (StackElement, error) {
 	return poppedElem, errors.New("Can't pop element from empty stack!")
 }
 
+func HasMoreElements(s *Stack) bool {
+	return len(s.Elements) > 0
+}
+
 
 
 
