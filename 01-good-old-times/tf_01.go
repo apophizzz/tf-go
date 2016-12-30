@@ -196,7 +196,6 @@ func doPartTwo() {
 	primaryMemory = FileProcessingMemory{}
 
 	// Prepare memory for top 25 words
-	//primaryMemory.top25Words = [25]string{}
 	primaryMemory.top25Words = make([]string, 26, 26)
 
 	for {
