@@ -31,6 +31,14 @@ func HasMoreElements(s *Stack) bool {
 	return len(s.Elements) > 0
 }
 
+func ElementAt(s* Stack, index int) StackElement {
+	if(index < 0 || index > (len(s.Elements)) - 1) {
+		panic("Stack: Index out of bounds!")
+	}
+
+	return s.Elements[index]
+}
+
 
 
 
