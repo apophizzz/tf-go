@@ -15,7 +15,7 @@ func (pairList SortablePairList) Len() int {
 }
 
 func (pairList SortablePairList) Less(i, j int) bool {
-	return pairList[i].Val > pairList[j].Val
+	return pairList[i].Val < pairList[j].Val
 }
 
 func (pairList SortablePairList) Swap(i, j int) {
