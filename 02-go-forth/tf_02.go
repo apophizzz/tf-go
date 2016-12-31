@@ -114,7 +114,7 @@ func removeStopWords() {
 		}
 	}
 
-	util.Push(&stack, util.StackElement{Val: heap["words"].([]string)})
+	util.Push(&stack, util.StackElement{Val: heap["words"]})
 
 	// Clear heap.
 	delete(heap, "err")
@@ -135,10 +135,15 @@ func createLowercaseAlphabet() {
 		heap["result"] = append(heap["result"].([]string), string(heap["byteSlice"].([]byte)[i]))
 	}
 
-	util.Push(&stack, util.StackElement{Val:heap["result"].([]string)})
+	util.Push(&stack, util.StackElement{Val:heap["result"]})
 
 	delete(heap, "result")
 	delete(heap, "byteSlice")
+}
+
+
+func computeFrequencies() {
+
 }
 
 func main() {
