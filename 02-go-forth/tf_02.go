@@ -2,10 +2,12 @@ package main
 
 import (
 	"github.com/PaddySmalls/golang-term-frequency/util"
+	"github.com/PaddySmalls/golang-term-frequency/02-go-forth/types"
 	"log"
 	"io/ioutil"
 	"regexp"
 	"strings"
+	"sort"
 )
 
 // Prepare stack.
@@ -218,12 +220,45 @@ func computeFrequencies() {
 	delete(heap, "frequencies")
 }
 
+
+/*
+	STEP 6:
+	Fetch the unsorted map from stack and convert it to a list of sortable key-value pairs.
+	Then, sort the list and push the result back onto the stack.
+ */
+func mapToSortedPairList() {
+	heap["map"], heap["err"] = util.Pop(&stack)
+	heap["map"] = heap["map"].(util.StackElement).Val
+
+	if(heap["err"] != nil) {
+		panic(heap["err"])
+	}
+
+	// Allocate space for pair list on heap.
+	heap["pairList"] = make(types.SortablePairList, 0)
+
+	for key, val := range heap["map"].(map[string]int) {
+		heap["pairList"] = append(heap["pairList"].(types.SortablePairList), types.SortablePair{Key:key, Val:val})
+	}
+
+	sort.Sort(heap["pairList"].(types.SortablePairList))
+
+	util.Push(&stack, util.StackElement{Val:heap["pairList"]})
+
+	// Clear heap.
+	delete(heap, "err")
+	delete(heap, "map")
+	delete(heap, "pairList")
+}
+
+
 func main() {
 	readInputFile()
 	filterInvalidChars()
 	scan()
 	removeStopWords()
 	computeFrequencies()
+	mapToSortedPairList()
 
 	log.Print(stack.Elements)
 	log.Print(heap)
