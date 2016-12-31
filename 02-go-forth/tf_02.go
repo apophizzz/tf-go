@@ -137,13 +137,85 @@ func createLowercaseAlphabet() {
 
 	util.Push(&stack, util.StackElement{Val:heap["result"]})
 
+	// Clear heap.
 	delete(heap, "result")
 	delete(heap, "byteSlice")
 }
 
-
+/*
+	STEP 5:
+	Pop the filtered slice of words from the stack. Allocate space on the heap for a map storing the frequencies,
+	iterate over the word slice and update the word counts in the map. At least, push the map on the stack and
+	free the heap.
+ */
 func computeFrequencies() {
+	heap["words"], heap["err"] = util.Pop(&stack)
+	heap["words"] = heap["words"].(util.StackElement).Val
 
+	heap["frequencies"] = make(map[string]int)
+
+	if (heap["err"] != nil) {
+		panic(heap["err"])
+	}
+
+	for heap["index"], heap["currentWord"] = range heap["words"].([]string) {
+		if heap["currentWordCount"], heap["isPresent"] =
+			heap["frequencies"].(map[string]int)[heap["currentWord"].(string)]; heap["isPresent"] != nil {
+
+			// Push current word count to stack.
+			util.Push(&stack, util.StackElement{Val:heap["currentWordCount"].(int)})
+
+			// Push '1' to stack in order to be able to add it to the current count.
+			util.Push(&stack, util.StackElement{Val:1})
+
+			// Pop current count and adder from stack.
+			heap["adder"], heap["err"] = util.Pop(&stack)
+			heap["adder"] = heap["adder"].(util.StackElement).Val
+
+			if (heap["err"] != nil) {
+				panic(heap["err"])
+			}
+
+			heap["currentWordCount"], heap["err"] = util.Pop(&stack)
+			heap["currentWordCount"] = heap["currentWordCount"].(util.StackElement).Val
+
+			if (heap["err"] != nil) {
+				panic(heap["err"])
+			}
+
+			// Push new count to stack.
+			util.Push(&stack, util.StackElement{Val:heap["currentWordCount"].(int) + heap["adder"].(int)})
+
+		} else {
+			// Word is not present in map yet, push '1' as current count to stack.
+			util.Push(&stack, util.StackElement{Val:1})
+		}
+
+		// Pop count from stack and update count for word on heap.
+		heap["newCount"], heap["err"] = util.Pop(&stack)
+		heap["newCount"] = heap["newCount"].(util.StackElement).Val
+
+		if(heap["err"] != nil) {
+			panic(heap["err"])
+		}
+
+		heap["frequencies"].(map[string]int)[heap["currentWord"].(string)] = heap["newCount"].(int)
+
+	}
+
+	// Push map to the stack.
+	util.Push(&stack, util.StackElement{Val:heap["frequencies"]})
+
+	// Clear heap.
+	delete(heap, "words")
+	delete(heap, "err")
+	delete(heap, "index")
+	delete(heap, "currentWord")
+	delete(heap, "currentWordCount")
+	delete(heap, "isPresent")
+	delete(heap, "newCount")
+	delete(heap, "adder")
+	delete(heap, "frequencies")
 }
 
 func main() {
@@ -151,6 +223,7 @@ func main() {
 	filterInvalidChars()
 	scan()
 	removeStopWords()
+	computeFrequencies()
 
 	log.Print(stack.Elements)
 	log.Print(heap)
