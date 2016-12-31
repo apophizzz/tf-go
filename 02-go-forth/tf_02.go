@@ -197,7 +197,7 @@ func computeFrequencies() {
 		heap["newCount"], heap["err"] = util.Pop(&stack)
 		heap["newCount"] = heap["newCount"].(util.StackElement).Val
 
-		if(heap["err"] != nil) {
+		if (heap["err"] != nil) {
 			panic(heap["err"])
 		}
 
@@ -230,7 +230,7 @@ func mapToSortedPairList() {
 	heap["map"], heap["err"] = util.Pop(&stack)
 	heap["map"] = heap["map"].(util.StackElement).Val
 
-	if(heap["err"] != nil) {
+	if (heap["err"] != nil) {
 		panic(heap["err"])
 	}
 
@@ -243,7 +243,11 @@ func mapToSortedPairList() {
 
 	sort.Sort(heap["pairList"].(types.SortablePairList))
 
-	util.Push(&stack, util.StackElement{Val:heap["pairList"]})
+	for _, pair := range heap["pairList"].(types.SortablePairList) {
+		util.Push(&stack, util.StackElement{Val:pair})
+	}
+
+	//util.Push(&stack, util.StackElement{Val:heap["pairList"]})
 
 	// Clear heap.
 	delete(heap, "err")
@@ -251,6 +255,57 @@ func mapToSortedPairList() {
 	delete(heap, "pairList")
 }
 
+func prettyPrintList() {
+	util.Push(&stack, util.StackElement{Val:0})
+
+	for len(stack.Elements) > 1 && util.ElementAt(&stack, len(stack.Elements) - 1).Val.(int) < 25 {
+		heap["counter"], heap["err"] = util.Pop(&stack)
+
+		if (heap["err"] != nil) {
+			panic(heap["err"])
+		}
+
+		heap["counter"] = heap["counter"].(util.StackElement).Val
+
+		heap["currentPair"], heap["err"] = util.Pop(&stack)
+
+		if (heap["err"] != nil) {
+			panic(heap["err"])
+		}
+
+		heap["currentPair"] = heap["currentPair"].(util.StackElement).Val
+
+		log.Printf("Word: %s - Frequency: %d", heap["currentPair"].(types.SortablePair).Key,
+			heap["currentPair"].(types.SortablePair).Val)
+
+		util.Push(&stack, util.StackElement{Val: heap["counter"]})
+		util.Push(&stack, util.StackElement{Val:1})
+
+		heap["adder"], heap["err"] = util.Pop(&stack)
+
+		if (heap["err"] != nil) {
+			panic(heap["err"])
+		}
+
+		heap["adder"] = heap["adder"].(util.StackElement).Val
+
+		heap["counterVal"], heap["err"] = util.Pop(&stack)
+
+		if (heap["err"] != nil) {
+			panic(heap["err"])
+		}
+
+		heap["counterVal"] = heap["counterVal"].(util.StackElement).Val
+
+		util.Push(&stack, util.StackElement{Val:heap["counterVal"].(int) + heap["adder"].(int)})
+	}
+
+	delete(heap, "counter")
+	delete(heap, "currentPair")
+	delete(heap, "adder")
+	delete(heap, "counterVal")
+	delete(heap, "err")
+}
 
 func main() {
 	readInputFile()
@@ -259,8 +314,6 @@ func main() {
 	removeStopWords()
 	computeFrequencies()
 	mapToSortedPairList()
-
-	log.Print(stack.Elements)
-	log.Print(heap)
+	prettyPrintList()
 }
 
