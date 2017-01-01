@@ -257,6 +257,8 @@ func mapToSortedPairList() {
 
 
 /*
+	STEP 7:
+	Pop 25 uppermost word-frequency pairs (those with highest count) from stack and print them to console.
 
  */
 func prettyPrintList() {
