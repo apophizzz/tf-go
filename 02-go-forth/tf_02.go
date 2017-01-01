@@ -2,7 +2,6 @@ package main
 
 import (
 	"github.com/PaddySmalls/golang-term-frequency/util"
-	"github.com/PaddySmalls/golang-term-frequency/02-go-forth/types"
 	"log"
 	"io/ioutil"
 	"regexp"
@@ -235,15 +234,15 @@ func mapToSortedPairList() {
 	}
 
 	// Allocate space for pair list on heap.
-	heap["pairList"] = make(types.SortablePairList, 0)
+	heap["pairList"] = make(util.SortablePairList, 0)
 
 	for key, val := range heap["map"].(map[string]int) {
-		heap["pairList"] = append(heap["pairList"].(types.SortablePairList), types.SortablePair{Key:key, Val:val})
+		heap["pairList"] = append(heap["pairList"].(util.SortablePairList), util.SortablePair{Key:key, Val:val})
 	}
 
-	sort.Sort(heap["pairList"].(types.SortablePairList))
+	sort.Sort(heap["pairList"].(util.SortablePairList))
 
-	for _, pair := range heap["pairList"].(types.SortablePairList) {
+	for _, pair := range heap["pairList"].(util.SortablePairList) {
 		util.Push(&stack, util.StackElement{Val:pair})
 	}
 
@@ -285,8 +284,8 @@ func prettyPrintList() {
 
 		heap["currentPair"] = heap["currentPair"].(util.StackElement).Val
 
-		log.Printf("Word: %s - Frequency: %d", heap["currentPair"].(types.SortablePair).Key,
-			heap["currentPair"].(types.SortablePair).Val)
+		log.Printf("Word: %s - Frequency: %d", heap["currentPair"].(util.SortablePair).Key,
+			heap["currentPair"].(util.SortablePair).Val)
 
 		util.Push(&stack, util.StackElement{Val: heap["counter"]})
 		util.Push(&stack, util.StackElement{Val:1})

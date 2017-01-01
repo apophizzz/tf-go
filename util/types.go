@@ -1,4 +1,4 @@
-package types
+package util
 
 type SortablePair struct {
 	Key string
