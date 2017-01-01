@@ -255,10 +255,18 @@ func mapToSortedPairList() {
 	delete(heap, "pairList")
 }
 
+
+/*
+
+ */
 func prettyPrintList() {
+
+	// Start counting from zero.
 	util.Push(&stack, util.StackElement{Val:0})
 
-	for len(stack.Elements) > 1 && util.ElementAt(&stack, len(stack.Elements) - 1).Val.(int) < 25 {
+	const maxPairCount = 25
+
+	for len(stack.Elements) > 1 && util.ElementAt(&stack, len(stack.Elements) - 1).Val.(int) < maxPairCount {
 		heap["counter"], heap["err"] = util.Pop(&stack)
 
 		if (heap["err"] != nil) {
