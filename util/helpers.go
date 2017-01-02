@@ -1,6 +1,9 @@
 package util
 
-import "os"
+import (
+	"os"
+	"strings"
+)
 
 func ReadLineFromFile(file *os.File) (string, int) {
 	var line string
@@ -30,4 +33,16 @@ func Contains(array []string, a string) bool {
 		}
 	}
 	return false
+}
+
+
+
+func CreateLowercaseAlphabet() []string {
+	byteSlice := make([]byte, 26)
+
+	for i := range byteSlice {
+		byteSlice[i] = 'a' + byte(i)
+	}
+
+	return strings.Split(string(byteSlice), "")
 }
