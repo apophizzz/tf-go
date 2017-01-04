@@ -3,6 +3,7 @@ package util
 import (
 	"os"
 	"strings"
+	"unicode"
 )
 
 func ReadLineFromFile(file *os.File) (string, int) {
@@ -45,4 +46,9 @@ func CreateLowercaseAlphabet() []string {
 	}
 
 	return strings.Split(string(byteSlice), "")
+}
+
+
+func IsAlphanumeric(c rune) bool {
+	return unicode.IsLetter(c) || unicode.IsDigit(c)
 }

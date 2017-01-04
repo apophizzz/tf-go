@@ -4,7 +4,6 @@ import (
 	"os"
 	"bufio"
 	"strings"
-	"unicode"
 	"log"
 	"strconv"
 	"fmt"
@@ -106,13 +105,13 @@ func doPartOne() {
 		for index, char := range primaryMemory.currentLine {
 
 			if (primaryMemory.wordStartCharIndex == -1) {
-				if (isAlphanumeric(char)) {
+				if (util.IsAlphanumeric(char)) {
 					// Start of new word has been found.
 					primaryMemory.wordStartCharIndex = index
 				}
 
 			} else {
-				if (!isAlphanumeric(char)) {
+				if (!util.IsAlphanumeric(char)) {
 					// End of a word has been found.
 					primaryMemory.foundExistingWord = false
 
@@ -247,10 +246,6 @@ func cropTop25Array() {
 		arr[i] = primaryMemory.top25Words[i]
 	}
 	primaryMemory.top25Words = arr
-}
-
-func isAlphanumeric(c rune) bool {
-	return unicode.IsLetter(c) || unicode.IsDigit(c)
 }
 
 
