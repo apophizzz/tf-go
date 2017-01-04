@@ -8,7 +8,7 @@ import (
 	"log"
 	"strconv"
 	"fmt"
-	"github.com/PaddySmalls/golang-term-frequency/util"
+	"github.com/PaddySmalls/golang_term-frequency-styles/util"
 )
 
 func touchopen(filename string) *os.File {
