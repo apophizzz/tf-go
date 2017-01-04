@@ -5,7 +5,7 @@ type SortablePair struct {
 	Val int
 }
 
-type SortablePairList []SortablePair
+type SortablePairList []*SortablePair
 
 
 // Implement Sorter interface

@@ -237,7 +237,7 @@ func mapToSortedPairList() {
 	heap["pairList"] = make(util.SortablePairList, 0)
 
 	for key, val := range heap["map"].(map[string]int) {
-		heap["pairList"] = append(heap["pairList"].(util.SortablePairList), util.SortablePair{Key:key, Val:val})
+		heap["pairList"] = append(heap["pairList"].(util.SortablePairList), &util.SortablePair{Key:key, Val:val})
 	}
 
 	sort.Sort(heap["pairList"].(util.SortablePairList))
@@ -284,8 +284,8 @@ func prettyPrintList() {
 
 		heap["currentPair"] = heap["currentPair"].(util.StackElement).Val
 
-		log.Printf("Word: %s - Frequency: %d", heap["currentPair"].(util.SortablePair).Key,
-			heap["currentPair"].(util.SortablePair).Val)
+		log.Printf("Word: %s - Frequency: %d", heap["currentPair"].(*util.SortablePair).Key,
+			heap["currentPair"].(*util.SortablePair).Val)
 
 		util.Push(&stack, util.StackElement{Val: heap["counter"]})
 		util.Push(&stack, util.StackElement{Val:1})
