@@ -1,7 +1,7 @@
 
 # Ignore IntelliJ specific dirs and files
 .idea/*
-golang-term-frequency.iml
+golang_term-frequency-styles.iml
 
 # Ignore target file
 word_freqs.txt
