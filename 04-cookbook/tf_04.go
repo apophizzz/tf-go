@@ -12,6 +12,11 @@ var data []byte = make([]byte, 0)
 var words []string = make([]string, 0)
 var wfPairs util.SortablePairList = make(util.SortablePairList, 0)
 
+
+/*
+	Read whole input file and store the resulting byte array
+	in the global 'data' variable.
+ */
 func readFile(filePath string)  {
 	fileData, err := ioutil.ReadFile(filePath)
 
@@ -22,6 +27,11 @@ func readFile(filePath string)  {
 	data = fileData
 }
 
+
+/*
+	Iterate over the input file bytes and replace every
+	non-alphanumeric character by whitespace.
+ */
 func filterCharsAndNormalize() {
 	for index := range data {
 		r, _ := utf8.DecodeRune(data[index:index+1])
