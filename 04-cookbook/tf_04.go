@@ -5,6 +5,9 @@ import (
 	"io/ioutil"
 	"unicode"
 	"unicode/utf8"
+	"strings"
+	"log"
+	"sort"
 )
 
 
@@ -44,9 +47,87 @@ func filterCharsAndNormalize() {
 }
 
 
+/*
+	Scan input data for words and store them in the global variable 'words'.
+ */
+func scan() {
+	words = append(words, strings.Split(string(data), " ")...)
+}
+
+
+/*
+	Read stop words from file and filter them from the list of words.
+ */
+func removeStopWords() {
+	stopWordsBytes, _ := ioutil.ReadFile("stop_words.txt")
+
+	stopWords := strings.Split(string(stopWordsBytes), ",")
+	stopWords = append(stopWords, util.CreateLowercaseAlphabet()...)
+
+	for index, word := range words {
+		if(util.Contains(stopWords, word)) {
+			if(index < len(words)) {
+				words = append(words[:index], words[index+1:]...)
+			} else {
+				words = words[:index]
+			}
+		}
+	}
+}
+
+
+/*
+	Iterate over filtered list of words and count their appearances.
+ */
+func computeFrequencies() {
+	for _, word := range words {
+		wordExists := false
+		for	_, pair := range wfPairs {
+			if(pair.Key == word) {
+				wordExists = true
+				pair.Val++
+				break
+			}
+		}
+
+		if(!wordExists) {
+			wfPairs = append(wfPairs, &util.SortablePair{Key:word, Val:1})
+		}
+	}
+}
+
+
+/*
+	Sort list of word-frequency pairs by their value (i.e. word count)
+	in descending order.
+ */
+func sortWordFrequencyPairs() {
+	sort.Sort(wfPairs)
+}
+
+
+/*
+	Print 25 words with highest frequency to console.
+ */
+func printTop25() {
+	for index, pair := range wfPairs {
+		if(index < 25) {
+			log.Printf("Word: %s - Frequency: %d\n", pair.Key, pair.Val)
+		} else {
+			// Stop printing results when top 25 words have been printed.
+			break
+		}
+	}
+}
+
 
 func main() {
 	readFile("input.txt")
 	filterCharsAndNormalize()
+	scan()
+	removeStopWords()
+	computeFrequencies()
+	sortWordFrequencyPairs()
+	printTop25()
 }
 
