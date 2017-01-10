@@ -9,6 +9,11 @@ import (
 	"sort"
 )
 
+
+/*
+	Read contents of the input file specified by 'filePath'
+	and return them as a single string.
+ */
 func readFile(filePath string) string {
 	fileData, err := ioutil.ReadFile(filePath)
 
@@ -19,6 +24,11 @@ func readFile(filePath string) string {
 	return string(fileData)
 }
 
+
+/*
+	Replace all non-alphanumeric characters within 'data' with
+	whitespace and return clean string.
+ */
 func filterCharsAndNormalize(data string) string {
 	regexp, err := regexp.Compile("[\\W_]+")
 
@@ -29,10 +39,18 @@ func filterCharsAndNormalize(data string) string {
 	return strings.ToLower(regexp.ReplaceAllLiteralString(data, " "))
 }
 
+
+/*
+	Split 'data' string into an array of single words.
+ */
 func scan(data string) []string {
 	return strings.Split(data, " ")
 }
 
+
+/*
+	Remove all stop words from 'words' array.
+ */
 func removeStopWords(words []string) []string {
 	stopWordsFileBytes, err := ioutil.ReadFile("stop_words.txt")
 
@@ -52,6 +70,10 @@ func removeStopWords(words []string) []string {
 	return validWords
 }
 
+
+/*
+	Iterate through all valid words and count their appearances.
+ */
 func countFrequencies(words []string) util.SortablePairList {
 	wfPairs := make(util.SortablePairList, 0)
 
@@ -67,12 +89,22 @@ func countFrequencies(words []string) util.SortablePairList {
 	return wfPairs
 }
 
+
+/*
+	Take a list of sortable pairs as an argument and return
+	a sorted version of it.
+ */
 func sortWfPairs(wfPairs util.SortablePairList) util.SortablePairList {
 	pairList := wfPairs
 	sort.Sort(pairList)
 	return pairList
 }
 
+
+/*
+	Iterate through the list of sorted word-frequency pairs and print
+	them one by one.
+ */
 func printAll(wfPairs util.SortablePairList) {
 	if (len(wfPairs) > 0) {
 		log.Printf("Word: %s - Frequency: %d", wfPairs[0].Key, wfPairs[0].Val)
@@ -80,6 +112,10 @@ func printAll(wfPairs util.SortablePairList) {
 	}
 }
 
+
+/*
+	The starting point.
+ */
 func main() {
 	printAll(sortWfPairs(countFrequencies(removeStopWords(scan(filterCharsAndNormalize(readFile("input.txt")))))))
 }
