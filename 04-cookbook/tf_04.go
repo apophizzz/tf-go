@@ -11,6 +11,12 @@ import (
 )
 
 
+/*
+	These are the shared global data structures which are
+	symptomatic for the cookbook style. As a consequence, this style
+	heavily relies on side effects instead of having functions that
+	take arguments and return their results (see Pipeline style).
+ */
 var data []byte = make([]byte, 0)
 var words []string = make([]string, 0)
 var wfPairs util.SortablePairList = make(util.SortablePairList, 0)
@@ -20,10 +26,10 @@ var wfPairs util.SortablePairList = make(util.SortablePairList, 0)
 	Read whole input file and store the resulting byte array
 	in the global 'data' variable.
  */
-func readFile(filePath string)  {
+func readFile(filePath string) {
 	fileData, err := ioutil.ReadFile(filePath)
 
-	if(err != nil) {
+	if (err != nil) {
 		panic(err)
 	}
 
@@ -37,11 +43,11 @@ func readFile(filePath string)  {
  */
 func filterCharsAndNormalize() {
 	for index := range data {
-		r, _ := utf8.DecodeRune(data[index:index+1])
-		if(!util.IsAlphanumeric(r)) {
-			utf8.EncodeRune(data[index:index+1], ' ')
+		r, _ := utf8.DecodeRune(data[index:index + 1])
+		if (!util.IsAlphanumeric(r)) {
+			utf8.EncodeRune(data[index:index + 1], ' ')
 		} else {
-			utf8.EncodeRune(data[index:index+1], unicode.ToLower(r))
+			utf8.EncodeRune(data[index:index + 1], unicode.ToLower(r))
 		}
 	}
 }
@@ -65,9 +71,9 @@ func removeStopWords() {
 	stopWords = append(stopWords, util.CreateLowercaseAlphabet()...)
 
 	for index, word := range words {
-		if(util.Contains(stopWords, word)) {
-			if(index < len(words)) {
-				words = append(words[:index], words[index+1:]...)
+		if (util.Contains(stopWords, word)) {
+			if (index < len(words)) {
+				words = append(words[:index], words[index + 1:]...)
 			} else {
 				words = words[:index]
 			}
@@ -82,15 +88,15 @@ func removeStopWords() {
 func computeFrequencies() {
 	for _, word := range words {
 		wordExists := false
-		for	_, pair := range wfPairs {
-			if(pair.Key == word) {
+		for _, pair := range wfPairs {
+			if (pair.Key == word) {
 				wordExists = true
 				pair.Val++
 				break
 			}
 		}
 
-		if(!wordExists) {
+		if (!wordExists) {
 			wfPairs = append(wfPairs, &util.SortablePair{Key:word, Val:1})
 		}
 	}
@@ -111,7 +117,7 @@ func sortWordFrequencyPairs() {
  */
 func printTop25() {
 	for index, pair := range wfPairs {
-		if(index < 25) {
+		if (index < 25) {
 			log.Printf("Word: %s - Frequency: %d\n", pair.Key, pair.Val)
 		} else {
 			// Stop printing results when top 25 words have been printed.
@@ -119,7 +125,6 @@ func printTop25() {
 		}
 	}
 }
-
 
 func main() {
 	readFile("input.txt")
