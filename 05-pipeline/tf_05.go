@@ -107,7 +107,7 @@ func sortWfPairs(wfPairs util.SortablePairList) util.SortablePairList {
  */
 func printAll(wfPairs util.SortablePairList) {
 	if (len(wfPairs) > 0) {
-		log.Printf("Word: %-10s \t- Frequency: %d", wfPairs[0].Key, wfPairs[0].Val)
+		log.Printf("Word: %-10s -\tFrequency: %d", wfPairs[0].Key, wfPairs[0].Val)
 		printAll(wfPairs[1:])
 	}
 }
