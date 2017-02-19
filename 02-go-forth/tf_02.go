@@ -28,8 +28,7 @@ func readInputFile() {
 		panic(heap["err"])
 	}
 
-	stack.Push(util.StackElement{Val:string(heap["buffer"].([]byte))})
-
+	util.Push(&stack, util.StackElement{Val:string(heap["buffer"].([]byte))})
 
 	// Clear heap.
 	delete(heap, "buffer")
@@ -48,11 +47,10 @@ func filterInvalidChars() {
 		panic(heap["err"])
 	}
 
-	heap["input"], heap["err"] = stack.Pop()
+	heap["input"], heap["err"] = util.Pop(&stack)
 	heap["input"] = heap["input"].(util.StackElement).Val
 
-
-	stack.Push(util.StackElement{Val:heap["regexp"].(*regexp.Regexp).
+	util.Push(&stack, util.StackElement{Val:heap["regexp"].(*regexp.Regexp).
 		ReplaceAllLiteralString(heap["input"].(string), " ")})
 
 	// Clear heap.
@@ -67,12 +65,12 @@ func filterInvalidChars() {
 	to the stack.
  */
 func scan() {
-	heap["input"], heap["err"] = stack.Pop()
+	heap["input"], heap["err"] = util.Pop(&stack)
 	heap["input"] = heap["input"].(util.StackElement).Val
 	heap["input"] = strings.Split(heap["input"].(string), " ")
 
 	for _, word := range heap["input"].([]string) {
-		stack.Push(util.StackElement{Val:word})
+		util.Push(&stack, util.StackElement{Val:word})
 	}
 
 	// Clear heap.
@@ -88,24 +86,23 @@ func scan() {
 	it simply gets discarded. At the end, the array of valid words is pushed onto the stack for further processing.
  */
 func removeStopWords() {
-	heap["stopWordsBytes"], heap["err"] = ioutil.ReadFile("stop_words.txt")
+	heap["buffer"], heap["err"] = ioutil.ReadFile("stop_words.txt")
 
 	if (heap["err"] != nil) {
 		panic(heap["err"])
 	}
 
 	createLowercaseAlphabet()
+	heap["callResult"], _ = util.Pop(&stack)
 
-	heap["alphabet"], _ = stack.Pop()
-
-	heap["stopWords"] = append(strings.Split(string(heap["stopWordsBytes"].([]byte)), ","),
-		heap["alphabet"].(util.StackElement).Val.([]string)...)
+	heap["stopWords"] = append(strings.Split(string(heap["buffer"].([]byte)), ","),
+		heap["callResult"].(util.StackElement).Val.([]string)...)
 
 	heap["words"] = make([]string, 0)
 
-	for stack.HasMoreElements() {
+	for util.HasMoreElements(&stack) {
 
-		heap["stackElement"], heap["err"] = stack.Pop()
+		heap["stackElement"], heap["err"] = util.Pop(&stack)
 
 		if (heap["err"] != nil) {
 			panic(heap["err"])
@@ -113,37 +110,36 @@ func removeStopWords() {
 
 		if !util.Contains(heap["stopWords"].([]string),
 			heap["stackElement"].(util.StackElement).Val.(string)) {
-
 			heap["words"] = append(heap["words"].([]string),
 				heap["stackElement"].(util.StackElement).Val.(string))
 		}
 	}
 
-	stack.Push(util.StackElement{Val: heap["words"]})
+	util.Push(&stack, util.StackElement{Val: heap["words"]})
 
 	// Clear heap.
 	delete(heap, "err")
-	delete(heap, "stopWordsBytes")
+	delete(heap, "buffer")
 	delete(heap, "result")
 	delete(heap, "stackElement")
 	delete(heap, "words")
 	delete(heap, "stopWords")
-	delete(heap, "alphabet")
+	delete(heap, "callResult")
 }
 
 func createLowercaseAlphabet() {
-	heap["alphabet"] = make([]string, 0)
+	heap["result"] = make([]string, 0)
 	heap["byteSlice"] = make([]byte, 26)
 
 	for i := range heap["byteSlice"].([]byte) {
 		heap["byteSlice"].([]byte)[i] = 'a' + byte(i)
-		heap["alphabet"] = append(heap["alphabet"].([]string), string(heap["byteSlice"].([]byte)[i]))
+		heap["result"] = append(heap["result"].([]string), string(heap["byteSlice"].([]byte)[i]))
 	}
 
-	stack.Push(util.StackElement{Val:heap["alphabet"]})
+	util.Push(&stack, util.StackElement{Val:heap["result"]})
 
 	// Clear heap.
-	delete(heap, "alphabet")
+	delete(heap, "result")
 	delete(heap, "byteSlice")
 }
 
@@ -154,7 +150,7 @@ func createLowercaseAlphabet() {
 	free the heap.
  */
 func computeFrequencies() {
-	heap["words"], heap["err"] = stack.Pop()
+	heap["words"], heap["err"] = util.Pop(&stack)
 	heap["words"] = heap["words"].(util.StackElement).Val
 
 	heap["frequencies"] = make(map[string]int)
@@ -164,25 +160,24 @@ func computeFrequencies() {
 	}
 
 	for heap["index"], heap["currentWord"] = range heap["words"].([]string) {
-
 		if heap["currentWordCount"], heap["isPresent"] =
-			heap["frequencies"].(map[string]int)[heap["currentWord"].(string)]; heap["isPresent"].(bool) {
+			heap["frequencies"].(map[string]int)[heap["currentWord"].(string)]; heap["isPresent"] != nil {
 
 			// Push current word count to stack.
-			stack.Push(util.StackElement{Val:heap["currentWordCount"].(int)})
+			util.Push(&stack, util.StackElement{Val:heap["currentWordCount"].(int)})
 
 			// Push '1' to stack in order to be able to add it to the current count.
-			stack.Push(util.StackElement{Val:1})
+			util.Push(&stack, util.StackElement{Val:1})
 
 			// Pop current count and adder from stack.
-			heap["adder"], heap["err"] = stack.Pop()
+			heap["adder"], heap["err"] = util.Pop(&stack)
 			heap["adder"] = heap["adder"].(util.StackElement).Val
 
 			if (heap["err"] != nil) {
 				panic(heap["err"])
 			}
 
-			heap["currentWordCount"], heap["err"] = stack.Pop()
+			heap["currentWordCount"], heap["err"] = util.Pop(&stack)
 			heap["currentWordCount"] = heap["currentWordCount"].(util.StackElement).Val
 
 			if (heap["err"] != nil) {
@@ -190,15 +185,15 @@ func computeFrequencies() {
 			}
 
 			// Push new count to stack.
-			stack.Push(util.StackElement{Val:heap["currentWordCount"].(int) + heap["adder"].(int)})
+			util.Push(&stack, util.StackElement{Val:heap["currentWordCount"].(int) + heap["adder"].(int)})
 
 		} else {
 			// Word is not present in map yet, push '1' as current count to stack.
-			stack.Push(util.StackElement{Val:1})
+			util.Push(&stack, util.StackElement{Val:1})
 		}
 
 		// Pop count from stack and update count for word on heap.
-		heap["newCount"], heap["err"] = stack.Pop()
+		heap["newCount"], heap["err"] = util.Pop(&stack)
 		heap["newCount"] = heap["newCount"].(util.StackElement).Val
 
 		if (heap["err"] != nil) {
@@ -210,7 +205,7 @@ func computeFrequencies() {
 	}
 
 	// Push map to the stack.
-	stack.Push(util.StackElement{Val:heap["frequencies"]})
+	util.Push(&stack, util.StackElement{Val:heap["frequencies"]})
 
 	// Clear heap.
 	delete(heap, "words")
@@ -231,7 +226,7 @@ func computeFrequencies() {
 	Then, sort the list and push the result back onto the stack.
  */
 func mapToSortedPairList() {
-	heap["map"], heap["err"] = stack.Pop()
+	heap["map"], heap["err"] = util.Pop(&stack)
 	heap["map"] = heap["map"].(util.StackElement).Val
 
 	if (heap["err"] != nil) {
@@ -247,10 +242,11 @@ func mapToSortedPairList() {
 
 	sort.Sort(heap["pairList"].(util.SortablePairList))
 
-	for i := len(heap["pairList"].(util.SortablePairList)) - 1; i >= 0; i-- {
-		stack.Push(util.StackElement{ Val: heap["pairList"].(util.SortablePairList)[i]})
+	for _, pair := range heap["pairList"].(util.SortablePairList) {
+		util.Push(&stack, util.StackElement{Val:pair})
 	}
 
+	//util.Push(&stack, util.StackElement{Val:heap["pairList"]})
 
 	// Clear heap.
 	delete(heap, "err")
@@ -267,14 +263,12 @@ func mapToSortedPairList() {
 func prettyPrintList() {
 
 	// Start counting from zero.
-	stack.Push(util.StackElement{Val:0})
+	util.Push(&stack, util.StackElement{Val:0})
 
 	const maxPairCount = 25
 
-	for len(stack.Elements) > 1 && stack.ElementAt(len(stack.Elements) - 1).Val.(int) < maxPairCount {
-
-		// Pop counter from stack.
-		heap["counter"], heap["err"] = stack.Pop()
+	for len(stack.Elements) > 1 && util.ElementAt(&stack, len(stack.Elements) - 1).Val.(int) < maxPairCount {
+		heap["counter"], heap["err"] = util.Pop(&stack)
 
 		if (heap["err"] != nil) {
 			panic(heap["err"])
@@ -282,8 +276,7 @@ func prettyPrintList() {
 
 		heap["counter"] = heap["counter"].(util.StackElement).Val
 
-		// Pop next word-frequency pair from stack.
-		heap["currentPair"], heap["err"] = stack.Pop()
+		heap["currentPair"], heap["err"] = util.Pop(&stack)
 
 		if (heap["err"] != nil) {
 			panic(heap["err"])
@@ -291,14 +284,13 @@ func prettyPrintList() {
 
 		heap["currentPair"] = heap["currentPair"].(util.StackElement).Val
 
-		log.Printf("Word: %-10s -\tFrequency: %-5d", heap["currentPair"].(*util.SortablePair).Key,
+		log.Printf("Word: %s - Frequency: %d", heap["currentPair"].(*util.SortablePair).Key,
 			heap["currentPair"].(*util.SortablePair).Val)
 
-		// Push current count and adder on stack.
-		stack.Push(util.StackElement{Val: heap["counter"]})
-		stack.Push(util.StackElement{Val:1})
+		util.Push(&stack, util.StackElement{Val: heap["counter"]})
+		util.Push(&stack, util.StackElement{Val:1})
 
-		heap["adder"], heap["err"] = stack.Pop()
+		heap["adder"], heap["err"] = util.Pop(&stack)
 
 		if (heap["err"] != nil) {
 			panic(heap["err"])
@@ -306,7 +298,7 @@ func prettyPrintList() {
 
 		heap["adder"] = heap["adder"].(util.StackElement).Val
 
-		heap["counterVal"], heap["err"] = stack.Pop()
+		heap["counterVal"], heap["err"] = util.Pop(&stack)
 
 		if (heap["err"] != nil) {
 			panic(heap["err"])
@@ -314,8 +306,7 @@ func prettyPrintList() {
 
 		heap["counterVal"] = heap["counterVal"].(util.StackElement).Val
 
-		// Push incremented counter back on stack.
-		stack.Push(util.StackElement{Val:heap["counterVal"].(int) + heap["adder"].(int)})
+		util.Push(&stack, util.StackElement{Val:heap["counterVal"].(int) + heap["adder"].(int)})
 	}
 
 	delete(heap, "counter")
