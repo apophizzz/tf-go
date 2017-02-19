@@ -30,13 +30,13 @@ func readFile(filePath string) string {
 	whitespace and return clean string.
  */
 func filterCharsAndNormalize(data string) string {
-	regexp, err := regexp.Compile("[\\W_]+")
+	regex, err := regexp.Compile("[\\W_]+")
 
 	if (err != nil) {
 		panic(err)
 	}
 
-	return strings.ToLower(regexp.ReplaceAllLiteralString(data, " "))
+	return strings.ToLower(regex.ReplaceAllLiteralString(data, " "))
 }
 
 
