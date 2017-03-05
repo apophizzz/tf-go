@@ -87,7 +87,18 @@ func printAll(wordFrequencies *util.SortablePairList) {
 }
 
 /*
-	This is where everything starts.
+	Style #7: "Infinite Mirror"
+
+	About this style:
+	The essence of this style is solving the term frequency problem by means of induction.
+	We can come to an inductive solutions by thinking about two things:
+
+	1) At first, we need to identify and solve one or more base cases. Here, we have a single base
+	case consisting of an empty list (see count and print functions). In that case, we stop the recursion
+	and return.
+	2) For the second part of the inductive approach, we need to find a general solution for the n-th case
+	that also works for the (n-th + 1) case. For example, we print the first element in the pair list and pass the rest
+	of the list to a recursive call of the print function.
  */
 func main() {
 	stop_words := readStopWords("stop_words.txt")
