@@ -33,7 +33,7 @@ var doNothing No_op = func() {
 	Iterate over the sorted list of word-frequency pairs and print
 	all the elements. Afterwards, we simply call the No_op continuation.
  */
-var print Printer = func(pairList util.SortablePairList, cont No_op) {
+var printAll Printer = func(pairList util.SortablePairList, cont No_op) {
 	pairList.Foreach(func(pair *util.SortablePair) {
 		fmt.Printf("Word: %-10s -\tFrequency: %d\n", pair.Key, pair.Val)
 	})
@@ -76,7 +76,7 @@ var countFrequencies = func(words []string, cont Sorter) {
 			pairList.Add(&util.SortablePair{Key:word, Val:1})
 		}
 	}
-	cont(pairList, print)
+	cont(pairList, printAll)
 }
 
 
@@ -171,6 +171,8 @@ func readFile(path string, cont CharFilter) {
 
 	cont(string(bytes), normalize)
 }
+
+
 
 func main() {
 	readFile("input.txt", filterChars)
