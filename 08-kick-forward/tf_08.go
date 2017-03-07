@@ -18,11 +18,21 @@ type Normalizer func(string, Scanner)
 type CharFilter func(string, Normalizer)
 type FileReader func(string, CharFilter)
 
+
+/*
+	This function does nothing but end the chain of continuations
+	by performing a return.
+ */
 var doNothing No_op = func() {
 	fmt.Println("Bye, I'm outta here ...")
 	return
 }
 
+
+/*
+	Iterate over the sorted list of word-frequency pairs and print
+	all the elements. Afterwards, we simply call the No_op continuation.
+ */
 var print Printer = func(pairList util.SortablePairList, cont No_op) {
 	pairList.Foreach(func(pair *util.SortablePair) {
 		fmt.Printf("Word: %-10s -\tFrequency: %d\n", pair.Key, pair.Val)
@@ -30,11 +40,32 @@ var print Printer = func(pairList util.SortablePairList, cont No_op) {
 	cont()
 }
 
+
+/*
+	This function takes a list if word-frequency pairs as an argument and sorts
+	it by word count in descending order. Afterwards, it calls the Printer
+	continuation, passing the following arguments:
+
+	1) The sorted list of word-frequency pairs.
+	2) The No_op continuation to be called by the Printer after having printed
+	the list of pairs.
+ */
 var sort Sorter = func(pairList util.SortablePairList, cont Printer) {
 	pairList.Sort()
 	cont(pairList, doNothing)
 }
 
+
+/*
+	This function takes a slice containing all words which aren't stop words
+	and counts them, building a list of "word-frequency pairs". After that,
+	it calls the Sorter continuation it got passed, along with the following
+	arguments:
+
+	1) The list of word-frequency pairs.
+	2) The function (print) to be invoked by the Sorter after it has finished
+	its job.
+ */
 var countFrequencies = func(words []string, cont Sorter) {
 	pairList := make(util.SortablePairList, 0)
 	for _, word := range words {
@@ -48,6 +79,16 @@ var countFrequencies = func(words []string, cont Sorter) {
 	cont(pairList, print)
 }
 
+
+/*
+	This function takes a slice holding all the input words and discards all words
+	which are considered "stop words". Afterwards, it calls the FrequencyCounter
+	continuation, passing two arguments:
+
+	1) A slice containing all words which aren't considered stop words.
+	2) Another function (sort) to be invoked after the FrequencyCounter has finished
+	its work.
+ */
 var filterStopWords StopWordsFilter = func(words []string, cont FrequencyCounter) {
 	bytes, err := ioutil.ReadFile("stop_words.txt")
 
@@ -67,18 +108,46 @@ var filterStopWords StopWordsFilter = func(words []string, cont FrequencyCounter
 	cont(filteredWords, sort)
 }
 
+
+/*
+	This function takes the input string, which is free from non-alphanumeric
+	characters and uppercase letters so far, and splits it up into an array
+	of words. Afterwards, it calls the StopWordsFilter continuation, passing the
+	following arguments:
+
+	1) The array containing the input string's single words.
+	2) Another continuation (countFrequencies) to be called by the StopWordsFilter
+	as soon as it has finished its work.
+ */
 var scan Scanner = func(input string, cont StopWordsFilter) {
 	cont(strings.Split(input, " "), countFrequencies)
 }
 
+
+/*
+	This function converts the input string to a lowercase string.
+	Afterwards, it calls its Scanner continuation with the following arguments:
+
+	1) The input string, converted to lowercase.
+	2) The function that should be invoked by the Scanner (filterStopWords function).
+ */
 var normalize Normalizer = func(input string, cont Scanner) {
 	cont(strings.ToLower(input), filterStopWords)
 }
 
+
+/*
+	This function captures all non-alphanumeric characters and replaces them with
+	whitespace. Afterwards, it calls its Normalizer continuation passing the
+	following arguments:
+
+	1) The purged content of the input file.
+	2) The function the Normalizer should invoke after it has finished (scan function).
+ */
 var filterChars CharFilter = func(input string, cont Normalizer) {
 	regex, err := regexp.Compile("[\\W_]+")
 
-	if(err != nil) {
+	if (err != nil) {
 		panic("An error occurred parsing regular expression.")
 	}
 
@@ -86,7 +155,13 @@ var filterChars CharFilter = func(input string, cont Normalizer) {
 }
 
 
+/*
+	This is where everything starts. At first, we read the whole input file's contents.
+	Afterwards, we call the CharFilter continuation and pass it two arguments:
 
+	1) The input file's contents as a string.
+	2) The function to invoke (a Normalizer) after is has finished its work.
+ */
 func readFile(path string, cont CharFilter) {
 	bytes, err := ioutil.ReadFile(path)
 
@@ -98,5 +173,5 @@ func readFile(path string, cont CharFilter) {
 }
 
 func main() {
-	readFile("input.txt", doNothing)
+	readFile("input.txt", filterChars)
 }
