@@ -169,11 +169,33 @@ func readFile(path string, cont CharFilter) {
 		panic(fmt.Sprintf("Unable to read file: %s", path))
 	}
 
+	// This is an example of a tail-call: The readFile function
+	// calls another function as its last action. From this point,
+	// the readFile function's stack frame could safely be reused.
 	cont(string(bytes), normalize)
 }
 
 
+/*
+	Style #8: "Kick Forward"
 
+	About this style:
+	This style is, in some way, a variation of the "Pipeline" style (see "05-pipeline"). The main difference between
+	the "Pipeline" style and the one we implemented here is that every function has an additional parameter.
+	This parameter defines the function (aka continuation) that should be invoked once a function has finished
+	its work. In our concrete example, this introduces two major advantages:
+
+	1) Any function is somewhat decoupled from the concrete continuation function it should call at the end. What
+	that means is that we've introduced custom types like "Sorter", which is defined as a function that takes two
+	arguments: A list of word-frequency pairs as well as a Printer continuation. As a consequence, any function which
+	expects a Sorter as an argument can be passed any function that fulfills the described interface. In this way,
+	different Sorters can be implemented without its clients even see any difference.
+
+	2) If we had a compiler/runtime enabled for optimizing tail calls (which is not the case in Golang), the current
+	stack frame of a function calling its continuation could be reused, since all the calling function does is return
+	after the continuation call has also returned.
+
+ */
 func main() {
 	readFile("input.txt", filterChars)
 }
