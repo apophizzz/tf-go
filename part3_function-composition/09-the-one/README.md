@@ -1,6 +1,6 @@
-## Style #9 - "The One"
+# Style #9 - "The One"
 
-### Recap
+## Recap
 
 This style is a special case of function composition. It makes use of an abstraction (the *TFTheOne* structure
 in this case) which wraps a value and takes a function to be applied on that value. After every function 
@@ -51,8 +51,9 @@ in a very clear and well-arranged way:
   printMe()
 ```
 
+<br/>
 
-### Where does this style come from?
+## Where does this style come from?
 
 This style is derived from *Haskell*, a purely functional programming language which doesn't allow
 functions to have any side effects (because: no assignments = no side effects). In the 1990's, the
@@ -69,6 +70,7 @@ is returned.
 If you compare these specs to the implementation, you can see that this interface is pretty much
 what the *TFTheOne* struct tries to mimic.
 
+<br/>
 
-### Sources
+## Sources
 * Lopes, Christina Videira. (2014). *Exercises in Programming Style*. Boca Raton: CRC Press, pp.74-78. 
