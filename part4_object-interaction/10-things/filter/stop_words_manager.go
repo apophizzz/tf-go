@@ -26,6 +26,10 @@ func readFromStopWordsFile(fileName string) string {
 	return string(bytes)
 }
 
+func (swm *StopWordsManager) IsStopWord(word string) bool {
+	return util.Contains(swm.stopWords, word)
+}
+
 /*
 	Only for debugging purposes.
  */
