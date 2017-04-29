@@ -11,6 +11,10 @@ type SortablePair struct {
 	Val int
 }
 
+func (pair *SortablePair) IncrementCount() {
+	pair.Val++
+}
+
 type SortablePairList []*SortablePair
 
 
