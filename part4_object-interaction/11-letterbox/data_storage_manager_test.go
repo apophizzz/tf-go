@@ -11,18 +11,6 @@ func TestCanAllocateStruct(t *testing.T) {
 	}
 }
 
-func TestDataStorageManagerHasInitMethod(t *testing.T) {
-	dataStorageManager := &DataStorageManager{}
-	var i interface{} = dataStorageManager
-	_, ok := i.(interface {
-		initialize(filePath string)
-	})
-
-	if !ok {
-		t.Error("Struct DataStorageManager does not have any method 'init'!")
-	}
-}
-
 func TestDataStorageManagerHasDispatchMethod(t *testing.T) {
 	var iface interface{} = &DataStorageManager{}
 	_, ok := iface.(interface {
@@ -61,9 +49,58 @@ func TestDispatchThrowsErrorOnMalformedInitMessage(t *testing.T) {
 	}
 
 	var expectedErr interface{} = err
-	_, ok := expectedErr.(*InvalidDataStorageManagerInitMessage)
+	_, ok := expectedErr.(*InvalidDataStorageManagerMessage)
 
 	if !ok {
 		t.Error("Dispatch method did not throw expected error type!")
 	}
+}
+
+func TestDispatchThrowsErrorOnMissingInputFile(t *testing.T) {
+	dataStorageManager := &DataStorageManager{}
+
+	initMessage := []string{"init", "foobar.txt"}
+	err := dataStorageManager.Dispatch(initMessage)
+
+	if err == nil {
+		t.Error("Dispatch method should have thrown error!")
+	}
+
+	var expectedErr interface{} = err
+	_, ok := expectedErr.(*MissingInputFile)
+
+	if !ok {
+		t.Error("Dispatch method should have thrown MissingInputFile error!")
+	}
+
+}
+
+func TestFileContentIsSetOnExistingInputFile(t *testing.T) {
+	dataStorageManager := &DataStorageManager{}
+
+	initMessage := []string{"init", "test.txt"}
+	err := dataStorageManager.Dispatch(initMessage)
+
+	if err != nil {
+		t.Error(fmt.Sprintf("Dispatch method should not have thrown an error, but got: %s", err.Error()))
+	}
+
+	if dataStorageManager.fileContent == "" {
+		t.Error("File content must not be empty!")
+	}
+}
+
+func TestFileContentReadMatchesExpectedContent(t *testing.T) {
+	dataStorageManager := &DataStorageManager{}
+
+	initMessage := []string{"init", "test.txt"}
+	dataStorageManager.Dispatch(initMessage)
+
+	if !matchesExpectedContent(dataStorageManager.fileContent) {
+		t.Error(fmt.Sprintf("File content does not match expected value, got: %s", dataStorageManager.fileContent))
+	}
+}
+
+func matchesExpectedContent(fileContent string) bool {
+	return fileContent == "first line second line"
 }
