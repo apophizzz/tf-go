@@ -1,6 +1,6 @@
 package frequency
 
-import "github.com/PaddySmalls/golang_term-frequency-styles/util"
+import "github.com/apophis90/tf-go/util"
 
 type WordFrequencyManager struct {
 	wordFrequencyPairs *util.SortablePairList
@@ -11,12 +11,12 @@ func (wfm *WordFrequencyManager) Init() {
 	wfm.wordFrequencyPairs = &allocatedList
 }
 
-func (wfm *WordFrequencyManager) IncrementCount(word string)  {
-	if(wfm.wordFrequencyPairs.ContainsKey(word)) {
+func (wfm *WordFrequencyManager) IncrementCount(word string) {
+	if wfm.wordFrequencyPairs.ContainsKey(word) {
 		matchingPair, _ := wfm.wordFrequencyPairs.Get(word)
 		matchingPair.IncrementCount()
 	} else {
-		wfm.wordFrequencyPairs.Add(&util.SortablePair{Key:word, Val:1})
+		wfm.wordFrequencyPairs.Add(&util.SortablePair{Key: word, Val: 1})
 	}
 }
 

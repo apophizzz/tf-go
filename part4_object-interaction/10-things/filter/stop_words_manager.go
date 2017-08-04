@@ -1,10 +1,10 @@
 package filter
 
 import (
-	"io/ioutil"
 	"fmt"
+	"github.com/apophis90/tf-go/util"
+	"io/ioutil"
 	"strings"
-	"github.com/PaddySmalls/golang_term-frequency-styles/util"
 )
 
 type StopWordsManager struct {
@@ -17,9 +17,9 @@ func (swm *StopWordsManager) Init(fileName string) {
 }
 
 func readFromStopWordsFile(fileName string) string {
-	bytes , err := ioutil.ReadFile(fileName)
+	bytes, err := ioutil.ReadFile(fileName)
 
-	if(err != nil) {
+	if err != nil {
 		panic(fmt.Sprintf("Something went wrong while reading stop words from file: %s", fileName))
 	}
 
@@ -32,9 +32,7 @@ func (swm *StopWordsManager) IsStopWord(word string) bool {
 
 /*
 	Only for debugging purposes.
- */
+*/
 func (swm *StopWordsManager) Show() {
 	fmt.Println(swm.stopWords)
 }
-
-

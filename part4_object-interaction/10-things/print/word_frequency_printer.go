@@ -1,8 +1,8 @@
 package print
 
 import (
-	"github.com/PaddySmalls/golang_term-frequency-styles/util"
 	"fmt"
+	"github.com/apophis90/tf-go/util"
 )
 
 type WordFrequencyPrinter struct {
@@ -10,7 +10,7 @@ type WordFrequencyPrinter struct {
 }
 
 func (wfp *WordFrequencyPrinter) WithLimit(limit int) {
-	if(limit >= 0) {
+	if limit >= 0 {
 		wfp.limit = limit
 	} else {
 		limit = 0
@@ -28,5 +28,3 @@ func (wfp *WordFrequencyPrinter) PrintResult(pairs *util.SortablePairList) {
 func (wfp *WordFrequencyPrinter) isWithinRange(counter int, listSize int) bool {
 	return counter < wfp.limit && counter < listSize
 }
-
-
