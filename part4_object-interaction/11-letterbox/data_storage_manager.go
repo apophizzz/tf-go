@@ -11,24 +11,30 @@ type DataStorageManager struct {
 	fileContent string
 }
 
-func (dsm *DataStorageManager) Dispatch(message []string) error {
+func (dsm *DataStorageManager) Dispatch(message []string) ([]string, error) {
 	if !isEmptyMessage(message) {
 		if isValidInitMessage(message) {
-			content, inputErr := readFileContent(message[1])
-
-			if inputErr != nil {
-				return inputErr
-			}
-
-			dsm.fileContent = strings.ToLower(
-				cutTailingAndLeadingWhitespace(
-					replaceNonalnumCharsByWhitespace(content)))
-			return nil
+			return nil, dsm.handleInitMessage(message)
+		} else if isValidWordsMessage(message) {
+			return asWordsList(dsm.fileContent), nil
 		}
-		return &InvalidDataStorageManagerMessage{message}
+		return nil, &InvalidDataStorageManagerMessage{message}
 	} else {
-		return &EmptyDataStorageManagerMessage{}
+		return nil, &EmptyDataStorageManagerMessage{}
 	}
+	return nil, nil
+}
+
+func (dsm *DataStorageManager) handleInitMessage(message []string) error {
+	content, inputErr := readFileContent(message[1])
+
+	if inputErr != nil {
+		return inputErr
+	}
+
+	dsm.fileContent = strings.ToLower(
+		cutTailingAndLeadingWhitespace(
+			replaceNonalnumCharsByWhitespace(content)))
 	return nil
 }
 
@@ -38,6 +44,14 @@ func isEmptyMessage(message []string) bool {
 
 func isValidInitMessage(message []string) bool {
 	return (len(message) == 2 && message[0] == "init")
+}
+
+func isValidWordsMessage(message []string) bool {
+	return message[0] == "words"
+}
+
+func asWordsList(fileContent string) []string {
+	return strings.Fields(fileContent)
 }
 
 func readFileContent(filename string) (string, error) {

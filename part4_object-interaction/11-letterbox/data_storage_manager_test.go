@@ -14,7 +14,7 @@ func TestCanAllocateStruct(t *testing.T) {
 func TestDataStorageManagerHasDispatchMethod(t *testing.T) {
 	var iface interface{} = &DataStorageManager{}
 	_, ok := iface.(interface {
-		Dispatch(message []string) error
+		Dispatch(message []string) ([]string, error)
 	})
 
 	if !ok {
@@ -25,7 +25,7 @@ func TestDataStorageManagerHasDispatchMethod(t *testing.T) {
 func TestDispatchThrowsErrorOnEmptyMessage(t *testing.T) {
 	dataStorageManager := &DataStorageManager{}
 	message := []string{}
-	err := dataStorageManager.Dispatch(message)
+	_, err := dataStorageManager.Dispatch(message)
 
 	if err == nil {
 		t.Error("Dispatch method should have returned an error!")
@@ -42,7 +42,7 @@ func TestDispatchThrowsErrorOnEmptyMessage(t *testing.T) {
 func TestDispatchThrowsErrorOnMalformedInitMessage(t *testing.T) {
 	dataStorageManager := &DataStorageManager{}
 	initMessage := []string{"init"}
-	err := dataStorageManager.Dispatch(initMessage)
+	_, err := dataStorageManager.Dispatch(initMessage)
 
 	if err == nil {
 		t.Error("Dispatch method should have returned an error!")
@@ -60,7 +60,7 @@ func TestDispatchThrowsErrorOnMissingInputFile(t *testing.T) {
 	dataStorageManager := &DataStorageManager{}
 
 	initMessage := []string{"init", "foobar.txt"}
-	err := dataStorageManager.Dispatch(initMessage)
+	_, err := dataStorageManager.Dispatch(initMessage)
 
 	if err == nil {
 		t.Error("Dispatch method should have thrown error!")
@@ -79,7 +79,7 @@ func TestFileContentIsSetOnExistingInputFile(t *testing.T) {
 	dataStorageManager := &DataStorageManager{}
 
 	initMessage := []string{"init", "test.txt"}
-	err := dataStorageManager.Dispatch(initMessage)
+	_, err := dataStorageManager.Dispatch(initMessage)
 
 	if err != nil {
 		t.Error(fmt.Sprintf("Dispatch method should not have thrown an error, but got: %s", err.Error()))
@@ -103,4 +103,35 @@ func TestFileContentReadMatchesExpectedContent(t *testing.T) {
 
 func matchesExpectedContent(fileContent string) bool {
 	return fileContent == "first line second line"
+}
+
+func TestFileContentAsWordListIsReturnedOnWordsMessage(t *testing.T) {
+	dataStorageManager := &DataStorageManager{"this is valid content"}
+
+	wordsMessage := []string{"words"}
+	words, err := dataStorageManager.Dispatch(wordsMessage)
+
+	if err != nil {
+		t.Error("An error occurred, but was expected to be nil.")
+	}
+
+	if !matchesExpectedWordsList(words) {
+		t.Error(fmt.Sprintf("Test failure: Expected 'this, is, valid, content', got: %s", words))
+	}
+}
+
+func matchesExpectedWordsList(actualWordsList []string) bool {
+	expectedResult := []string{"this", "is", "valid", "content"}
+
+	if actualWordsList == nil || len(actualWordsList) != len(expectedResult) {
+		return false
+	}
+
+	for i, elem := range expectedResult {
+		if !(elem == actualWordsList[i]) {
+			return false
+		}
+	}
+
+	return true
 }
