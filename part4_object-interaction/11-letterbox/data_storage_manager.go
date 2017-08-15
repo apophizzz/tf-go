@@ -20,10 +20,9 @@ func (dsm *DataStorageManager) Dispatch(message []string) error {
 				return inputErr
 			}
 
-			regexPattern := "[\\W_]+"
-			regex, _ := regexp.Compile(regexPattern)
-
-			dsm.fileContent = strings.ToLower(strings.TrimSpace(regex.ReplaceAllLiteralString(content, " ")))
+			dsm.fileContent = strings.ToLower(
+				cutTailingAndLeadingWhitespace(
+					replaceNonalnumCharsByWhitespace(content)))
 			return nil
 		}
 		return &InvalidDataStorageManagerMessage{message}
@@ -52,6 +51,16 @@ func readFileContent(filename string) (string, error) {
 		content = string(bytes)
 	}
 	return content, fileMissing
+}
+
+func replaceNonalnumCharsByWhitespace(fileContent string) string {
+	regexPattern := "[\\W_]+"
+	regex, _ := regexp.Compile(regexPattern)
+	return regex.ReplaceAllLiteralString(fileContent, " ")
+}
+
+func cutTailingAndLeadingWhitespace(fileContent string) string {
+	return strings.TrimSpace(fileContent)
 }
 
 type EmptyDataStorageManagerMessage struct {
