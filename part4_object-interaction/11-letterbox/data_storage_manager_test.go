@@ -1,6 +1,5 @@
 package storage
 
-import "fmt"
 import "testing"
 
 func TestCanAllocateStruct(t *testing.T) {
@@ -35,7 +34,7 @@ func TestDispatchThrowsErrorOnEmptyMessage(t *testing.T) {
 	_, ok := actualErr.(*EmptyDataStorageManagerMessage)
 
 	if !ok {
-		t.Error(fmt.Sprintf("Dispatch method should have thrown EmptyDataStorageManagerMessage error, got %T", actualErr))
+		t.Errorf("Dispatch method should have thrown EmptyDataStorageManagerMessage error, got %T", actualErr)
 	}
 }
 
@@ -82,7 +81,7 @@ func TestFileContentIsSetOnExistingInputFile(t *testing.T) {
 	_, err := dataStorageManager.Dispatch(initMessage)
 
 	if err != nil {
-		t.Error(fmt.Sprintf("Dispatch method should not have thrown an error, but got: %s", err.Error()))
+		t.Errorf("Dispatch method should not have thrown an error, but got: %s", err.Error())
 	}
 
 	if dataStorageManager.fileContent == "" {
@@ -97,7 +96,7 @@ func TestFileContentReadMatchesExpectedContent(t *testing.T) {
 	dataStorageManager.Dispatch(initMessage)
 
 	if !matchesExpectedContent(dataStorageManager.fileContent) {
-		t.Error(fmt.Sprintf("File content does not match expected value, got: %s", dataStorageManager.fileContent))
+		t.Errorf("File content does not match expected value, got: %s", dataStorageManager.fileContent)
 	}
 }
 
@@ -116,7 +115,7 @@ func TestFileContentAsWordListIsReturnedOnWordsMessage(t *testing.T) {
 	}
 
 	if !matchesExpectedWordsList(words) {
-		t.Error(fmt.Sprintf("Test failure: Expected 'this, is, valid, content', got: %s", words))
+		t.Errorf("Test failure: Expected 'this, is, valid, content', got: %s", words)
 	}
 }
 
