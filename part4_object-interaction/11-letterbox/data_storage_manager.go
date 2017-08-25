@@ -22,7 +22,6 @@ func (dsm *DataStorageManager) Dispatch(message []string) ([]string, error) {
 	} else {
 		return nil, &EmptyDataStorageManagerMessage{}
 	}
-	return nil, nil
 }
 
 func (dsm *DataStorageManager) handleInitMessage(message []string) error {
